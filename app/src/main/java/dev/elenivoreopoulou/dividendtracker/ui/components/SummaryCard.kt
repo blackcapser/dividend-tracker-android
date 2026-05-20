@@ -16,8 +16,8 @@ import androidx.compose.ui.unit.dp
 fun SummaryCard(
     title: String,
     value: String,
-    subtitle: String? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    subtitle: String? = null
 ) {
     Card(
         modifier = modifier.fillMaxWidth()
