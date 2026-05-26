@@ -6,7 +6,7 @@ Modern Android dividend and investment portfolio tracker built with Kotlin and J
 
 - Portfolio dashboard
 - Dividend income tracking
-- Passive income goals
+- Passive income goal tracking
 - Investment holdings management
 - Dividend calendar
 - Bottom navigation architecture
@@ -50,6 +50,28 @@ ui/
 - Dark mode enhancements
 - Unit tests
 - Portfolio performance tracking
+
+## Design
+
+Figma UI/UX design:
+
+https://www.figma.com/design/lowccG7yLeAASGZaRsmn3v/divident-app?node-id=0-1&p=f&t=ECCKDVN9r70kREXl-0
+
+Designed by Thanos Thiriou.
+
+## Collaboration Workflow
+
+This project follows a collaborative workflow between design and development:
+
+- UI/UX design created in Figma
+- Android implementation built with Jetpack Compose
+- Feature-based Git branching
+- Pull request review workflow
+
+## Contributors
+
+- Eleni Voreopoulou — Android architecture, implementation, business logic
+- Thanos Thiriou — UI/UX design, Figma prototypes
 
 ## Screenshots
 
