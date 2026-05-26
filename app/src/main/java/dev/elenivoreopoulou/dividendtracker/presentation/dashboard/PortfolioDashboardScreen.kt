@@ -36,9 +36,10 @@ fun PortfolioDashboardScreen() {
         )
 
         SummaryCard(
-            title = "Portfolio Value",
+            title = "Total Portfolio Value",
             value = "€${portfolioValue.toInt()}",
-            subtitle = "${holdings.size} holdings"
+            subtitle = "${holdings.size} holdings",
+            trend = "+4.6%"
         )
 
         SummaryCard(
@@ -48,7 +49,7 @@ fun PortfolioDashboardScreen() {
         )
 
         SummaryCard(
-            title = "Monthly Passive Income",
+            title = "Monthly Average",
             value = "€${monthlyIncome.toInt()}",
             subtitle = "Goal: €${monthlyGoal.toInt()} / month"
         )
