@@ -4,8 +4,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChevronRight
@@ -27,8 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -41,21 +38,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.elenivoreopoulou.dividendtracker.data.model.FakePortfolioData
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendCard
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendPayoutCard
+import dev.elenivoreopoulou.dividendtracker.ui.components.GoalProgressCard
+import dev.elenivoreopoulou.dividendtracker.ui.components.TrendChip
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkBackground
-import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkSurface
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkSurfaceSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextPrimary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DividendTrackerTheme
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightBackground
-import dev.elenivoreopoulou.dividendtracker.ui.theme.LightSurface
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightSurfaceSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextPrimary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.PrimaryBlue
-import dev.elenivoreopoulou.dividendtracker.ui.theme.SuccessGreen
 import java.text.DecimalFormat
 
 @Composable
@@ -112,10 +110,11 @@ fun PortfolioDashboardScreen() {
             )
         }
 
-        PassiveIncomeGoalCard(
-            monthlyIncome = "€${currencyFormatter.format(monthlyIncome)}",
-            monthlyGoal = "€${currencyFormatter.format(monthlyGoal)}",
-            remaining = "€${currencyFormatter.format(monthlyGoal - monthlyIncome)} remaining to reach your monthly goal.",
+        GoalProgressCard(
+            title = "Passive Income Goal",
+            currentValue = "€${currencyFormatter.format(monthlyIncome)}",
+            targetValue = "€${currencyFormatter.format(monthlyGoal)}",
+            remainingText = "€${currencyFormatter.format(monthlyGoal - monthlyIncome)} remaining to reach your monthly goal.",
             progress = progress
         )
 
@@ -152,17 +151,17 @@ fun PortfolioDashboardScreen() {
             }
         }
 
-        PayoutCard(
+        DividendPayoutCard(
             initials = "BE",
-            ticker = "BELA.AT",
-            date = "Mar 15, 2026",
+            title = "BELA.AT",
+            subtitle = "Mar 15, 2026",
             amount = "+€120"
         )
 
-        PayoutCard(
+        DividendPayoutCard(
             initials = "OP",
-            ticker = "OPAP.AT",
-            date = "May 04, 2026",
+            title = "OPAP.AT",
+            subtitle = "May 04, 2026",
             amount = "+€450"
         )
 
@@ -244,25 +243,17 @@ private fun PortfolioValueCard(
     trend: String
 ) {
     val isDark = isSystemInDarkTheme()
-    val cardColor = if (isDark) DarkSurface else LightSurface
     val titleColor = if (isDark) DarkTextSecondary else LightTextSecondary
     val valueColor = if (isDark) DarkTextPrimary else LightTextPrimary
     val subtitleColor = if (isDark) DarkTextMuted else LightTextMuted
 
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(
-                elevation = 12.dp,
-                shape = RoundedCornerShape(24.dp),
-                ambientColor = Color.Black.copy(alpha = 0.18f),
-                spotColor = Color.Black.copy(alpha = 0.28f)
-            ),
-        shape = RoundedCornerShape(24.dp),
-        color = cardColor
+    DividendCard(
+        cornerRadius = 24.dp,
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 22.dp),
+        shadowElevation = 12.dp,
+        shadowColor = Color.Black.copy(alpha = if (isDark) 0.24f else 0.10f)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 22.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
@@ -285,17 +276,7 @@ private fun PortfolioValueCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = SuccessGreen.copy(alpha = if (isDark) 0.28f else 0.16f)
-                ) {
-                    Text(
-                        text = "↗ $trend",
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                        color = SuccessGreen
-                    )
-                }
+                TrendChip(text = trend)
 
                 Text(
                     text = subtitle,
@@ -314,17 +295,15 @@ private fun AnnualDividendCard(
     modifier: Modifier = Modifier
 ) {
     val isDark = isSystemInDarkTheme()
-    val cardColor = if (isDark) DarkSurface else LightSurface
     val titleColor = if (isDark) DarkTextSecondary else LightTextSecondary
     val valueColor = if (isDark) DarkTextPrimary else LightTextPrimary
 
-    Surface(
+    DividendCard(
         modifier = modifier.height(128.dp),
-        shape = RoundedCornerShape(22.dp),
-        color = cardColor
+        cornerRadius = 22.dp,
+        contentPadding = PaddingValues(20.dp)
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Text(
@@ -358,17 +337,15 @@ private fun MonthlyAverageCard(
     modifier: Modifier = Modifier
 ) {
     val isDark = isSystemInDarkTheme()
-    val cardColor = if (isDark) DarkSurface else LightSurface
     val titleColor = if (isDark) DarkTextSecondary else LightTextSecondary
     val subtitleColor = if (isDark) DarkTextMuted else LightTextMuted
 
-    Surface(
+    DividendCard(
         modifier = modifier.height(128.dp),
-        shape = RoundedCornerShape(22.dp),
-        color = cardColor
+        cornerRadius = 22.dp,
+        contentPadding = PaddingValues(20.dp)
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -427,169 +404,17 @@ private fun Sparkline(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun PassiveIncomeGoalCard(
-    monthlyIncome: String,
-    monthlyGoal: String,
-    remaining: String,
-    progress: Float
-) {
-    val isDark = isSystemInDarkTheme()
-    val cardColor = if (isDark) DarkSurface else LightSurface
-    val titleColor = if (isDark) DarkTextPrimary else LightTextPrimary
-    val secondaryColor = if (isDark) DarkTextSecondary else LightTextSecondary
-    val mutedColor = if (isDark) DarkTextMuted else LightTextMuted
-
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(22.dp),
-        color = cardColor
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(
-                        text = "Passive Income Goal",
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold
-                        ),
-                        color = titleColor
-                    )
-
-                    Text(
-                        text = "$monthlyIncome / $monthlyGoal",
-                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-                        color = secondaryColor
-                    )
-                }
-
-                Text(
-                    text = "${DecimalFormat("0.0").format(progress * 100)}%",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = PrimaryBlue
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(16.dp)
-                    .clip(RoundedCornerShape(50))
-                    .background(PrimaryBlue.copy(alpha = if (isDark) 0.32f else 0.18f))
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(progress)
-                        .height(16.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(PrimaryBlue)
-                )
-            }
-
-            Text(
-                text = remaining,
-                style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-                color = mutedColor
-            )
-        }
-    }
-}
-
-@Composable
-private fun PayoutCard(
-    initials: String,
-    ticker: String,
-    date: String,
-    amount: String
-) {
-    val isDark = isSystemInDarkTheme()
-
-    val cardColor = if (isDark) DarkSurface else LightSurface
-    val titleColor = if (isDark) DarkTextPrimary else LightTextPrimary
-    val subtitleColor = if (isDark) DarkTextMuted else LightTextMuted
-
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(22.dp),
-        color = cardColor
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Surface(
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .size(40.dp),
-                shape = CircleShape,
-                color = PrimaryBlue.copy(alpha = if (isDark) 0.26f else 0.14f)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = initials,
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                        color = PrimaryBlue
-                    )
-                }
-            }
-
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Text(
-                    text = ticker,
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = titleColor
-                )
-
-                Text(
-                    text = date,
-                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-                    color = subtitleColor
-                )
-            }
-
-            Text(
-                text = amount,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                color = SuccessGreen
-            )
-        }
-    }
-}
-
-@Composable
 private fun AllocationCard() {
     val isDark = isSystemInDarkTheme()
 
-    val cardColor = if (isDark) DarkSurface else LightSurface
     val titleColor = if (isDark) DarkTextPrimary else LightTextPrimary
     val subtitleColor = if (isDark) DarkTextMuted else LightTextMuted
 
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        color = cardColor
+    DividendCard(
+        cornerRadius = 24.dp,
+        contentPadding = PaddingValues(horizontal = 22.dp, vertical = 28.dp)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 22.dp, vertical = 28.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
