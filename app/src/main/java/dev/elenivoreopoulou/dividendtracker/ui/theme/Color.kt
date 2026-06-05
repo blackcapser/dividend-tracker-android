@@ -3,19 +3,19 @@ package dev.elenivoreopoulou.dividendtracker.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // Primary
-val PrimaryBlue = Color(0xFF8AA0FF)
+val PrimaryBlue = Color(0xFF8EA2FF)
 val PrimaryBlueDark = Color(0xFF5F6FEF)
 
 // Secondary
-val SuccessGreen = Color(0xFF34D399)
+val SuccessGreen = Color(0xFF26E3A8)
 val PremiumGold = Color(0xFFC7A86B)
 
 // Dark Theme
-val DarkBackground = Color(0xFF0B0D14)
-val DarkSurface = Color(0xFF121826)
-val DarkSurfaceSecondary = Color(0xFF1A2133)
-val DarkSurfaceElevated = Color(0xFF222C42)
-val DarkOutline = Color(0xFF2E3A55)
+val DarkBackground = Color(0xFF0B0E15)
+val DarkSurface = Color(0xFF1A1F2A)
+val DarkSurfaceSecondary = Color(0xFF202636)
+val DarkSurfaceElevated = Color(0xFF262D3D)
+val DarkOutline = Color(0xFF31384A)
 
 // Light Theme
 val LightBackground = Color(0xFFF6F7FB)
@@ -25,9 +25,9 @@ val LightSurfaceElevated = Color(0xFFE4E9F3)
 val LightOutline = Color(0xFFD3DBEA)
 
 // Text Dark
-val DarkTextPrimary = Color(0xFFF4F6FF)
-val DarkTextSecondary = Color(0xFFA9B2C7)
-val DarkTextMuted = Color(0xFF6E7891)
+val DarkTextPrimary = Color(0xFFF6F7FB)
+val DarkTextSecondary = Color(0xFFAEB4C2)
+val DarkTextMuted = Color(0xFF858C9D)
 
 // Text Light
 val LightTextPrimary = Color(0xFF0F172A)

@@ -1,29 +1,43 @@
 package dev.elenivoreopoulou.dividendtracker.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PieChart
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material.icons.outlined.TrackChanges
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -39,8 +53,6 @@ import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightBackground
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.PrimaryBlue
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.HorizontalDivider
 
 @Composable
 fun DividendTrackerApp() {
@@ -51,92 +63,30 @@ fun DividendTrackerApp() {
         BottomNavItem.Dashboard,
         BottomNavItem.Portfolio,
         BottomNavItem.AddHolding,
-        BottomNavItem.Dividends,
-        BottomNavItem.Goals
+        BottomNavItem.Goals,
+        BottomNavItem.Dividends
     )
 
     Scaffold(
         bottomBar = {
-            Column(
-                modifier = Modifier.background(if (isDark) DarkBackground else LightBackground)
-            ) {
-                HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 28.dp),
-                    color = if (isDark) DarkTextMuted else LightTextMuted,
-                    thickness = 1.dp
-                )
-            NavigationBar(
-                containerColor = if (isDark) DarkBackground else LightBackground,
-                tonalElevation = 0.dp
-            ) {
-                val currentDestination =
-                    navController.currentBackStackEntryAsState().value?.destination
+            val currentDestination = navController.currentBackStackEntryAsState().value?.destination
+            val currentRoute = bottomItems.firstOrNull { item ->
+                currentDestination?.hierarchy?.any { it.route == item.route } == true
+            }?.route
 
-                bottomItems.forEach { item ->
-                    val selected =
-                        currentDestination?.hierarchy?.any { it.route == item.route } == true
-
-                    if (item == BottomNavItem.AddHolding) {
-                        Box(
-                            modifier = Modifier.weight(1f),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            FloatingActionButton(
-                                onClick = {
-                                    navController.navigate(item.route) {
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
-                                modifier = Modifier.size(64.dp),
-                                shape = CircleShape,
-                                containerColor = PrimaryBlue,
-                                contentColor = Color.White
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Add,
-                                    contentDescription = item.label,
-                                    modifier = Modifier.size(34.dp)
-                                )
-                            }
+            DividendBottomBar(
+                items = bottomItems,
+                currentRoute = currentRoute,
+                onItemClick = { item ->
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
                         }
-                    } else {
-                        NavigationBarItem(
-                            selected = selected,
-                            onClick = {
-                                navController.navigate(item.route) {
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            icon = {
-                                Icon(
-                                    imageVector = item.icon,
-                                    contentDescription = item.label,
-                                    modifier = Modifier.size(28.dp)
-                                )
-                            },
-                            label = {
-                                Text(text = item.label)
-                            },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = PrimaryBlue,
-                                selectedTextColor = PrimaryBlue,
-                                unselectedIconColor = if (isDark) DarkTextMuted else LightTextMuted,
-                                unselectedTextColor = if (isDark) DarkTextMuted else LightTextMuted,
-                                indicatorColor = Color.Transparent
-                            )
-                        )
+                        launchSingleTop = true
+                        restoreState = true
                     }
                 }
-            }
-        }
+            )
         }
     ) { paddingValues ->
 
@@ -170,10 +120,174 @@ fun DividendTrackerApp() {
     }
 }
 
+@Composable
+private fun DividendBottomBar(
+    items: List<BottomNavItem>,
+    currentRoute: String?,
+    onItemClick: (BottomNavItem) -> Unit
+) {
+    val isDark = isSystemInDarkTheme()
+    val backgroundColor = if (isDark) DarkBackground else LightBackground
+    val mutedColor = if (isDark) DarkTextMuted else LightTextMuted
+
+    Surface(
+        color = backgroundColor,
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(backgroundColor)
+        ) {
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 24.dp),
+                color = mutedColor.copy(alpha = 0.45f),
+                thickness = 1.dp
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(96.dp)
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                items.forEach { item ->
+                    val selected = currentRoute == item.route
+
+                    if (item == BottomNavItem.AddHolding) {
+                        CenterAddNavItem(
+                            item = item,
+                            mutedColor = mutedColor,
+                            onClick = { onItemClick(item) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    } else {
+                        BottomNavButton(
+                            item = item,
+                            selected = selected,
+                            mutedColor = mutedColor,
+                            onClick = { onItemClick(item) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BottomNavButton(
+    item: BottomNavItem,
+    selected: Boolean,
+    mutedColor: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val iconColor = if (selected) Color.White else mutedColor
+    val labelColor = if (selected) PrimaryBlue else mutedColor
+
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(18.dp))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .width(56.dp)
+                .height(40.dp)
+                .clip(RoundedCornerShape(18.dp))
+                .background(if (selected) PrimaryBlue.copy(alpha = 0.92f) else Color.Transparent),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = item.icon,
+                contentDescription = item.label,
+                tint = iconColor,
+                modifier = Modifier.size(27.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Text(
+            text = item.label,
+            color = labelColor,
+            style = androidx.compose.material3.MaterialTheme.typography.labelLarge.copy(
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+    }
+}
+
+@Composable
+private fun CenterAddNavItem(
+    item: BottomNavItem,
+    mutedColor: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(18.dp))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(58.dp)
+                .shadow(
+                    elevation = 16.dp,
+                    shape = CircleShape,
+                    ambientColor = Color.Black.copy(alpha = 0.2f),
+                    spotColor = PrimaryBlue.copy(alpha = 0.35f)
+                )
+                .clip(CircleShape)
+                .background(PrimaryBlue),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = item.icon,
+                contentDescription = item.label,
+                tint = Color.White,
+                modifier = Modifier.size(32.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(5.dp))
+
+        Text(
+            text = item.label,
+            color = mutedColor,
+            style = androidx.compose.material3.MaterialTheme.typography.labelLarge.copy(
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium
+            )
+        )
+    }
+}
+
 private sealed class BottomNavItem(
     val route: String,
     val label: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector
+    val icon: ImageVector
 ) {
     data object Dashboard : BottomNavItem(
         route = "dashboard",
@@ -195,13 +309,13 @@ private sealed class BottomNavItem(
 
     data object Dividends : BottomNavItem(
         route = "dividends",
-        label = "Dividends",
+        label = "Calendar",
         icon = Icons.Outlined.CalendarMonth
     )
 
     data object Goals : BottomNavItem(
         route = "goals",
         label = "Goals",
-        icon = Icons.Outlined.Flag
+        icon = Icons.Outlined.TrackChanges
     )
 }
