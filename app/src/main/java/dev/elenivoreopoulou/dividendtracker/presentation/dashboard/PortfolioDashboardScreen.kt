@@ -22,6 +22,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -35,7 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.elenivoreopoulou.dividendtracker.data.model.FakePortfolioData
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendCard
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendAppHeader
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendPayoutCard
@@ -56,17 +58,18 @@ import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextPrimary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.PrimaryBlue
-import java.text.DecimalFormat
 
 @Composable
-fun PortfolioDashboardScreen() {
-    val holdings = FakePortfolioData.holdings
-    val portfolioValue = holdings.sumOf { it.currentValue }
-    val annualDividends = holdings.sumOf { it.annualDividendIncome }
-    val monthlyIncome = annualDividends / 12
-    val monthlyGoal = 5000.0
-    val progress = (monthlyIncome / monthlyGoal).toFloat().coerceIn(0f, 1f)
-    val currencyFormatter = DecimalFormat("#,##0.0#")
+fun PortfolioDashboardScreen(
+    viewModel: PortfolioDashboardViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    PortfolioDashboardScreen(uiState = uiState)
+}
+
+@Composable
+private fun PortfolioDashboardScreen(uiState: PortfolioDashboardUiState) {
     val isDark = isDividendInDarkTheme()
 
     val backgroundColor = if (isDark) DarkBackground else LightBackground
@@ -84,8 +87,8 @@ fun PortfolioDashboardScreen() {
         DividendAppHeader()
 
         PortfolioValueCard(
-            value = "€${currencyFormatter.format(portfolioValue)}",
-            subtitle = "${holdings.size} holdings"
+            value = uiState.portfolioValue,
+            subtitle = uiState.holdingsCountText
         )
 
         Row(
@@ -93,22 +96,23 @@ fun PortfolioDashboardScreen() {
             modifier = Modifier.fillMaxWidth()
         ) {
             AnnualDividendCard(
-                value = "€${currencyFormatter.format(annualDividends)}",
+                value = uiState.annualDividends,
                 modifier = Modifier.weight(1f)
             )
 
             MonthlyAverageCard(
-                value = "€${currencyFormatter.format(monthlyIncome)}",
+                value = uiState.monthlyIncome,
+                yield = uiState.portfolioYield,
                 modifier = Modifier.weight(1f)
             )
         }
 
         GoalProgressCard(
             title = "Passive Income Goal",
-            currentValue = "€${currencyFormatter.format(monthlyIncome)}",
-            targetValue = "€${currencyFormatter.format(monthlyGoal)}",
-            remainingText = "€${currencyFormatter.format(monthlyGoal - monthlyIncome)} remaining to reach your monthly goal.",
-            progress = progress
+            currentValue = uiState.monthlyIncome,
+            targetValue = uiState.monthlyGoal,
+            remainingText = "${uiState.remainingMonthlyGoal} remaining to reach your monthly goal.",
+            progress = uiState.goalProgress
         )
 
         Row(
@@ -144,19 +148,14 @@ fun PortfolioDashboardScreen() {
             }
         }
 
-        DividendPayoutCard(
-            initials = "BE",
-            title = "BELA.AT",
-            subtitle = "Mar 15, 2026",
-            amount = "+€120"
-        )
-
-        DividendPayoutCard(
-            initials = "OP",
-            title = "OPAP.AT",
-            subtitle = "May 04, 2026",
-            amount = "+€450"
-        )
+        uiState.upcomingPayouts.forEach { payout ->
+            DividendPayoutCard(
+                initials = payout.initials,
+                title = payout.title,
+                subtitle = payout.subtitle,
+                amount = payout.amount
+            )
+        }
 
         AllocationCard()
 
@@ -259,6 +258,7 @@ private fun AnnualDividendCard(
 @Composable
 private fun MonthlyAverageCard(
     value: String,
+    yield: String,
     modifier: Modifier = Modifier
 ) {
     val isDark = isDividendInDarkTheme()
@@ -295,7 +295,7 @@ private fun MonthlyAverageCard(
             )
 
             Text(
-                text = "Yield: 10.69%",
+                text = "Yield: $yield",
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
                 color = subtitleColor
             )
@@ -425,7 +425,7 @@ private fun PortfolioDashboardScreenLightPreview() {
     DividendTrackerTheme(
         darkTheme = false
     ) {
-        PortfolioDashboardScreen()
+        PortfolioDashboardScreen(uiState = previewDashboardUiState)
     }
 }
 
@@ -438,6 +438,31 @@ private fun PortfolioDashboardScreenDarkPreview() {
     DividendTrackerTheme(
         darkTheme = true
     ) {
-        PortfolioDashboardScreen()
+        PortfolioDashboardScreen(uiState = previewDashboardUiState)
     }
 }
+
+private val previewDashboardUiState = PortfolioDashboardUiState(
+    portfolioValue = "€132,920.5",
+    holdingsCountText = "4 holdings",
+    annualDividends = "€13,577.2",
+    monthlyIncome = "€1,131.43",
+    monthlyGoal = "€5,000",
+    remainingMonthlyGoal = "€3,868.57",
+    goalProgress = 0.23f,
+    portfolioYield = "10.21%",
+    upcomingPayouts = listOf(
+        UpcomingPayoutUiState(
+            initials = "BE",
+            title = "BELA.AT",
+            subtitle = "Mar 15, 2026",
+            amount = "+€120"
+        ),
+        UpcomingPayoutUiState(
+            initials = "OP",
+            title = "OPAP.AT",
+            subtitle = "May 04, 2026",
+            amount = "+€450"
+        )
+    )
+)
