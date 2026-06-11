@@ -1,7 +1,8 @@
 package dev.elenivoreopoulou.dividendtracker.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkOutline
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextPrimary
@@ -22,6 +24,7 @@ import dev.elenivoreopoulou.dividendtracker.ui.theme.DividendTrackerTheme
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightOutline
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextPrimary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.PrimaryBlue
+import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
 
 @Composable
 fun DividendPrimaryButton(
@@ -55,27 +58,33 @@ fun DividendSecondaryButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    fillMaxWidth: Boolean = true,
+    cornerRadius: Dp = 22.dp,
+    contentPadding: PaddingValues = PaddingValues(vertical = 14.dp),
+    textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge.copy(
+        fontWeight = FontWeight.SemiBold
+    )
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val contentColor = if (isDark) DarkTextPrimary else LightTextPrimary
     val borderColor = if (isDark) DarkOutline else LightOutline
 
     OutlinedButton(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
+        modifier = if (fillMaxWidth) modifier.fillMaxWidth() else modifier,
         enabled = enabled,
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(cornerRadius),
         border = BorderStroke(1.dp, borderColor),
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = contentColor,
             disabledContentColor = contentColor.copy(alpha = 0.5f)
         ),
-        contentPadding = PaddingValues(vertical = 14.dp)
+        contentPadding = contentPadding
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
+            style = textStyle
         )
     }
 }
@@ -84,7 +93,19 @@ fun DividendSecondaryButton(
 @Composable
 private fun DividendButtonPreview() {
     DividendTrackerTheme(darkTheme = true) {
-        DividendPrimaryButton(text = "Save Holding", onClick = {})
+        DividendCard {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                DividendPrimaryButton(text = "Save Holding", onClick = {})
+                DividendSecondaryButton(
+                    text = "Adjust Contributions",
+                    onClick = {},
+                    fillMaxWidth = false,
+                    cornerRadius = 50.dp,
+                    contentPadding = PaddingValues(horizontal = 18.dp, vertical = 8.dp),
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+                )
+            }
+        }
     }
 }
 

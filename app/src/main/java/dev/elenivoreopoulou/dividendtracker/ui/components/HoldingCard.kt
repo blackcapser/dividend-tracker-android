@@ -1,6 +1,6 @@
 package dev.elenivoreopoulou.dividendtracker.ui.components
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,7 +39,7 @@ fun HoldingCard(
     holding: Holding,
     modifier: Modifier = Modifier
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val primaryTextColor = if (isDark) DarkTextPrimary else LightTextPrimary
     val secondaryTextColor = if (isDark) DarkTextSecondary else LightTextSecondary
     val mutedTextColor = if (isDark) DarkTextMuted else LightTextMuted

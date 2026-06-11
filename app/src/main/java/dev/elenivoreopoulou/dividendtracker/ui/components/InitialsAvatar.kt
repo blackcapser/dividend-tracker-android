@@ -1,6 +1,6 @@
 package dev.elenivoreopoulou.dividendtracker.ui.components
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -23,7 +23,7 @@ fun InitialsAvatar(
     modifier: Modifier = Modifier,
     size: Dp = 48.dp
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
 
     Surface(
         modifier = modifier.size(size),

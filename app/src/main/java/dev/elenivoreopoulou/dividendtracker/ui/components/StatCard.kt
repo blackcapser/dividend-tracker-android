@@ -2,7 +2,7 @@ package dev.elenivoreopoulou.dividendtracker.ui.components
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
+import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,15 +16,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkSurface
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextPrimary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextSecondary
+import dev.elenivoreopoulou.dividendtracker.ui.theme.DividendTrackerTheme
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightSurface
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextPrimary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextSecondary
+import dev.elenivoreopoulou.dividendtracker.ui.theme.PrimaryBlue
 
 @Composable
 fun StatCard(
@@ -35,7 +38,7 @@ fun StatCard(
     valueColorOverride: Color? = null,
     @DrawableRes chartRes: Int? = null
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
 
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -77,5 +80,33 @@ fun StatCard(
                 )
             }
         }
+    }
+}
+
+@Preview(name = "Stat Card Light", showBackground = true)
+@Composable
+private fun StatCardLightPreview() {
+    DividendTrackerTheme(darkTheme = false) {
+        StatCard(
+            title = "Monthly Average",
+            value = "€1,131.43",
+            subtitle = "Yield: 10.69%",
+            valueColorOverride = PrimaryBlue,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Preview(name = "Stat Card Dark", showBackground = true)
+@Composable
+private fun StatCardDarkPreview() {
+    DividendTrackerTheme(darkTheme = true) {
+        StatCard(
+            title = "Monthly Average",
+            value = "€1,131.43",
+            subtitle = "Yield: 10.69%",
+            valueColorOverride = PrimaryBlue,
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }

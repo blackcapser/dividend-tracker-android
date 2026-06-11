@@ -2,7 +2,7 @@ package dev.elenivoreopoulou.dividendtracker.presentation.portfolio
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.isSystemInDarkTheme
+import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,17 +13,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material.icons.outlined.WbSunny
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -42,20 +37,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.elenivoreopoulou.dividendtracker.data.model.FakePortfolioData
 import dev.elenivoreopoulou.dividendtracker.domain.model.Holding
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendAppHeader
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendCard
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenBottomPadding
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenHorizontalPadding
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenTitleRow
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenTopPadding
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendTextField
 import dev.elenivoreopoulou.dividendtracker.ui.components.HoldingCard
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkBackground
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkOutline
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkSurface
-import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkSurfaceSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextPrimary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DividendTrackerTheme
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightBackground
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightOutline
-import dev.elenivoreopoulou.dividendtracker.ui.theme.LightSurface
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightSurfaceSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextPrimary
@@ -73,48 +71,33 @@ fun PortfolioScreen() {
             holding.companyName.contains(searchQuery, ignoreCase = true)
     }
     val uiState = PortfolioUiState.from(holdings)
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val backgroundColor = if (isDark) DarkBackground else LightBackground
     val primaryTextColor = if (isDark) DarkTextPrimary else LightTextPrimary
-    val secondaryTextColor = if (isDark) DarkTextSecondary else LightTextSecondary
     val mutedTextColor = if (isDark) DarkTextMuted else LightTextMuted
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor),
-        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 42.dp),
+        contentPadding = PaddingValues(
+            start = DividendScreenHorizontalPadding,
+            top = DividendScreenTopPadding,
+            end = DividendScreenHorizontalPadding,
+            bottom = DividendScreenBottomPadding
+        ),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item {
-            PortfolioHeader(
-                titleColor = primaryTextColor,
-                subtitleColor = secondaryTextColor
-            )
+            DividendAppHeader()
         }
 
         item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Holdings",
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = primaryTextColor
-                )
-
-                Icon(
-                    imageVector = Icons.Outlined.Tune,
-                    contentDescription = "Filter holdings",
-                    tint = primaryTextColor,
-                    modifier = Modifier.size(30.dp)
-                )
-            }
+            DividendScreenTitleRow(
+                title = "Holdings",
+                trailingIcon = Icons.Outlined.Tune,
+                trailingIconContentDescription = "Filter holdings"
+            )
         }
 
         item {
@@ -151,57 +134,10 @@ fun PortfolioScreen() {
     }
 }
 
-@Composable
-private fun PortfolioHeader(
-    titleColor: Color,
-    subtitleColor: Color
-) {
-    val isDark = isSystemInDarkTheme()
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy((-2).dp)
-        ) {
-            Text(
-                text = "Dividend Portfolio",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                color = titleColor
-            )
-
-            Text(
-                text = "Good morning, Investor",
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
-                color = subtitleColor
-            )
-        }
-
-        Surface(
-            modifier = Modifier.size(54.dp),
-            shape = CircleShape,
-            color = if (isDark) DarkSurfaceSecondary else LightSurface
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = if (isDark) Icons.Outlined.WbSunny else Icons.Outlined.DarkMode,
-                    contentDescription = null,
-                    tint = subtitleColor,
-                    modifier = Modifier.size(26.dp)
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun PortfolioSummaryCard(uiState: PortfolioUiState) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
 
     DividendCard(
         cornerRadius = 28.dp,
@@ -254,7 +190,7 @@ private fun SummaryMetric(
     modifier: Modifier = Modifier,
     valueColor: Color? = null
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val labelColor = if (isDark) DarkTextSecondary else LightTextSecondary
     val resolvedValueColor = valueColor ?: if (isDark) DarkTextPrimary else LightTextPrimary
 
@@ -285,7 +221,7 @@ private fun SearchHoldingsField(
     value: String,
     onValueChange: (String) -> Unit
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val borderColor = if (isDark) DarkOutline else LightOutline
 
     Box(
@@ -321,7 +257,7 @@ private fun EmptyHoldingsMessage(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        color = if (isSystemInDarkTheme()) DarkSurface else LightSurfaceSecondary
+        color = if (isDividendInDarkTheme()) DarkSurface else LightSurfaceSecondary
     ) {
         Column(
             modifier = Modifier.padding(24.dp),
