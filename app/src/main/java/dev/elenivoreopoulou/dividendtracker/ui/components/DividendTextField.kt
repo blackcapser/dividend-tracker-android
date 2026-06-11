@@ -1,6 +1,6 @@
 package dev.elenivoreopoulou.dividendtracker.ui.components
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -35,7 +35,7 @@ fun DividendTextField(
     enabled: Boolean = true,
     singleLine: Boolean = true
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val containerColor = if (isDark) DarkSurface else LightSurface
     val textColor = if (isDark) DarkTextPrimary else LightTextPrimary
     val placeholderColor = if (isDark) DarkTextMuted else LightTextMuted

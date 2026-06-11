@@ -1,7 +1,7 @@
 package dev.elenivoreopoulou.dividendtracker.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.isSystemInDarkTheme
+import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -57,7 +57,7 @@ fun DividendSecondaryButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val contentColor = if (isDark) DarkTextPrimary else LightTextPrimary
     val borderColor = if (isDark) DarkOutline else LightOutline
 

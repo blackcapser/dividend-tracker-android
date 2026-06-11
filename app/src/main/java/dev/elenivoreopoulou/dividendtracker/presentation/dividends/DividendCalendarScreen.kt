@@ -3,7 +3,7 @@ package dev.elenivoreopoulou.dividendtracker.presentation.dividends
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
+import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,9 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.WbSunny
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,17 +31,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendAppHeader
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendCard
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenBottomPadding
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenHorizontalPadding
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenTitleRow
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenTopPadding
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkBackground
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkOutline
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkSurface
-import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkSurfaceSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextPrimary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextSecondary
@@ -63,28 +63,40 @@ fun DividendCalendarScreen() {
     val months = calendarMonths
     val annualExpectedIncome = months.sumOf { month -> month.payouts.sumOf { it.amount } }
     val currencyFormatter = DecimalFormat("#,##0")
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val backgroundColor = if (isDark) DarkBackground else LightBackground
     val primaryTextColor = if (isDark) DarkTextPrimary else LightTextPrimary
-    val secondaryTextColor = if (isDark) DarkTextSecondary else LightTextSecondary
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp)
-            .padding(top = 56.dp, bottom = 32.dp),
+            .padding(horizontal = DividendScreenHorizontalPadding)
+            .padding(top = DividendScreenTopPadding, bottom = DividendScreenBottomPadding),
         verticalArrangement = Arrangement.spacedBy(26.dp)
     ) {
-        CalendarHeader(
-            titleColor = primaryTextColor,
-            subtitleColor = secondaryTextColor
-        )
+        DividendAppHeader()
 
-        CalendarTitleRow(
-            titleColor = primaryTextColor
-        )
+        DividendScreenTitleRow(title = "Calendar") {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = "2026",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                    color = primaryTextColor
+                )
+
+                Icon(
+                    imageVector = Icons.Outlined.KeyboardArrowDown,
+                    contentDescription = "Select year",
+                    tint = primaryTextColor,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+        }
 
         ExpectedIncomeCard(
             amount = "€${currencyFormatter.format(annualExpectedIncome)}"
@@ -98,90 +110,8 @@ fun DividendCalendarScreen() {
 }
 
 @Composable
-private fun CalendarHeader(
-    titleColor: Color,
-    subtitleColor: Color
-) {
-    val isDark = isSystemInDarkTheme()
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy((-2).dp)) {
-            Text(
-                text = "Dividend Portfolio",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                color = titleColor
-            )
-
-            Text(
-                text = "Good morning, Investor",
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
-                color = subtitleColor
-            )
-        }
-
-        Surface(
-            modifier = Modifier.size(54.dp),
-            shape = CircleShape,
-            color = if (isDark) DarkSurfaceSecondary else LightSurface
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = if (isDark) Icons.Outlined.WbSunny else Icons.Outlined.DarkMode,
-                    contentDescription = null,
-                    tint = subtitleColor,
-                    modifier = Modifier.size(26.dp)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun CalendarTitleRow(titleColor: Color) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Calendar",
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            color = titleColor
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = "2026",
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-                color = titleColor
-            )
-
-            Icon(
-                imageVector = Icons.Outlined.KeyboardArrowDown,
-                contentDescription = "Select year",
-                tint = titleColor,
-                modifier = Modifier.size(22.dp)
-            )
-        }
-    }
-}
-
-@Composable
 private fun ExpectedIncomeCard(amount: String) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val titleColor = if (isDark) DarkTextSecondary else LightTextSecondary
     val valueColor = if (isDark) DarkTextPrimary else LightTextPrimary
 
@@ -230,7 +160,7 @@ private fun CalendarTimeline(
     months: List<CalendarMonth>,
     currencyFormatter: DecimalFormat
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val lineColor = if (isDark) DarkOutline else LightTextMuted.copy(alpha = 0.68f)
 
     Row(
@@ -294,7 +224,7 @@ private fun TimelineMarker(
         Surface(
             modifier = Modifier.size(if (isActive) 10.dp else 9.dp),
             shape = CircleShape,
-            color = if (isActive) PrimaryBlue else if (isSystemInDarkTheme()) DarkOutline else LightTextMuted.copy(alpha = 0.7f)
+            color = if (isActive) PrimaryBlue else if (isDividendInDarkTheme()) DarkOutline else LightTextMuted.copy(alpha = 0.7f)
         ) {}
     }
 }
@@ -305,7 +235,7 @@ private fun MonthPayoutCard(
     currencyFormatter: DecimalFormat,
     modifier: Modifier = Modifier
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val isActive = month.hasPayouts
     val containerColor = if (isDark) DarkSurface else LightSurface
     val inactiveContainerColor = if (isDark) DarkSurface.copy(alpha = 0.58f) else LightSurface.copy(alpha = 0.72f)

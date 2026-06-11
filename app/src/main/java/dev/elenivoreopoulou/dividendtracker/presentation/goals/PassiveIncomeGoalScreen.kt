@@ -1,7 +1,7 @@
 package dev.elenivoreopoulou.dividendtracker.presentation.goals
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
+import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,10 +19,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.TrendingUp
 import androidx.compose.material.icons.outlined.Bolt
-import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.TrackChanges
-import androidx.compose.material.icons.outlined.WbSunny
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -45,17 +43,20 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.elenivoreopoulou.dividendtracker.data.model.FakePortfolioData
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendAppHeader
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendCard
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenBottomPadding
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenHorizontalPadding
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenTitleRow
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenTopPadding
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkBackground
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkOutline
-import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkSurfaceSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextPrimary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DividendTrackerTheme
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightBackground
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightOutline
-import dev.elenivoreopoulou.dividendtracker.ui.theme.LightSurface
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextPrimary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextSecondary
@@ -72,10 +73,9 @@ fun PassiveIncomeGoalScreen() {
     val remainingMonthlyIncome = (monthlyGoal - monthlyIncome).coerceAtLeast(0.0)
     val currencyFormatter = DecimalFormat("#,##0.##")
     val percentFormatter = DecimalFormat("0.#")
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val backgroundColor = if (isDark) DarkBackground else LightBackground
     val primaryTextColor = if (isDark) DarkTextPrimary else LightTextPrimary
-    val secondaryTextColor = if (isDark) DarkTextSecondary else LightTextSecondary
     val mutedTextColor = if (isDark) DarkTextMuted else LightTextMuted
 
     Column(
@@ -83,17 +83,16 @@ fun PassiveIncomeGoalScreen() {
             .fillMaxSize()
             .background(backgroundColor)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp)
-            .padding(top = 56.dp, bottom = 32.dp),
+            .padding(horizontal = DividendScreenHorizontalPadding)
+            .padding(top = DividendScreenTopPadding, bottom = DividendScreenBottomPadding),
         verticalArrangement = Arrangement.spacedBy(26.dp)
     ) {
-        GoalsHeader(
-            titleColor = primaryTextColor,
-            subtitleColor = secondaryTextColor
-        )
+        DividendAppHeader()
 
-        GoalsTitleRow(
-            titleColor = primaryTextColor
+        DividendScreenTitleRow(
+            title = "Goals",
+            trailingIcon = Icons.Outlined.TrackChanges,
+            trailingIconContentDescription = "Goals"
         )
 
         MonthlyGoalCard(
@@ -142,76 +141,6 @@ fun PassiveIncomeGoalScreen() {
     }
 }
 
-@Composable
-private fun GoalsHeader(
-    titleColor: Color,
-    subtitleColor: Color
-) {
-    val isDark = isSystemInDarkTheme()
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy((-2).dp)) {
-            Text(
-                text = "Dividend Portfolio",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                color = titleColor
-            )
-
-            Text(
-                text = "Good morning, Investor",
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
-                color = subtitleColor
-            )
-        }
-
-        Surface(
-            modifier = Modifier.size(54.dp),
-            shape = CircleShape,
-            color = if (isDark) DarkSurfaceSecondary else LightSurface
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = if (isDark) Icons.Outlined.WbSunny else Icons.Outlined.DarkMode,
-                    contentDescription = null,
-                    tint = subtitleColor,
-                    modifier = Modifier.size(26.dp)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun GoalsTitleRow(titleColor: Color) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Goals",
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
-            ),
-            color = titleColor
-        )
-
-        Icon(
-            imageVector = Icons.Outlined.TrackChanges,
-            contentDescription = "Goals",
-            tint = titleColor,
-            modifier = Modifier.size(26.dp)
-        )
-    }
-}
 
 @Composable
 private fun MonthlyGoalCard(
@@ -221,7 +150,7 @@ private fun MonthlyGoalCard(
     remainingMonthlyIncome: String,
     progress: Float
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val primaryTextColor = if (isDark) DarkTextPrimary else LightTextPrimary
     val secondaryTextColor = if (isDark) DarkTextSecondary else LightTextSecondary
     val mutedTextColor = if (isDark) DarkTextMuted else LightTextMuted
@@ -296,7 +225,7 @@ private fun MonthlyGoalCard(
 
 @Composable
 private fun GoalProgressBar(progress: Float) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val trackColor = PrimaryBlue.copy(alpha = if (isDark) 0.36f else 0.20f)
 
     Box(
@@ -324,7 +253,7 @@ private fun ProjectionCard(
     iconColor: Color,
     modifier: Modifier = Modifier
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val primaryTextColor = if (isDark) DarkTextPrimary else LightTextPrimary
     val secondaryTextColor = if (isDark) DarkTextSecondary else LightTextSecondary
 
@@ -374,7 +303,7 @@ private fun AccelerateProgressCard(
     DividendCard(
         cornerRadius = 24.dp,
         contentPadding = PaddingValues(horizontal = 22.dp, vertical = 20.dp),
-        shadowElevation = if (isSystemInDarkTheme()) 10.dp else 0.dp,
+        shadowElevation = if (isDividendInDarkTheme()) 10.dp else 0.dp,
         shadowColor = Color.Black.copy(alpha = 0.22f)
     ) {
         Row(
@@ -421,7 +350,7 @@ private fun IconBadge(
     Surface(
         modifier = Modifier.size(size),
         shape = CircleShape,
-        color = iconColor.copy(alpha = if (isSystemInDarkTheme()) 0.16f else 0.18f)
+        color = iconColor.copy(alpha = if (isDividendInDarkTheme()) 0.16f else 0.18f)
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
@@ -436,7 +365,7 @@ private fun IconBadge(
 
 @Composable
 private fun AdjustContributionsButton() {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val contentColor = if (isDark) DarkTextPrimary else LightTextPrimary
     val borderColor = if (isDark) DarkOutline else LightOutline
 

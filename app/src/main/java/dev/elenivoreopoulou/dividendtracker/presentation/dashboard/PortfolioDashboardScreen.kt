@@ -2,7 +2,7 @@ package dev.elenivoreopoulou.dividendtracker.presentation.dashboard
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
+import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,14 +14,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.PieChart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,7 +37,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.elenivoreopoulou.dividendtracker.data.model.FakePortfolioData
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendCard
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendAppHeader
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendPayoutCard
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenBottomPadding
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenHorizontalPadding
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenTopPadding
 import dev.elenivoreopoulou.dividendtracker.ui.components.GoalProgressCard
 import dev.elenivoreopoulou.dividendtracker.ui.components.TrendChip
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkBackground
@@ -65,25 +67,21 @@ fun PortfolioDashboardScreen() {
     val monthlyGoal = 5000.0
     val progress = (monthlyIncome / monthlyGoal).toFloat().coerceIn(0f, 1f)
     val currencyFormatter = DecimalFormat("#,##0.0#")
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
 
     val backgroundColor = if (isDark) DarkBackground else LightBackground
     val primaryTextColor = if (isDark) DarkTextPrimary else LightTextPrimary
-    val secondaryTextColor = if (isDark) DarkTextSecondary else LightTextSecondary
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp)
-            .padding(top = 42.dp, bottom = 24.dp),
+            .padding(horizontal = DividendScreenHorizontalPadding)
+            .padding(top = DividendScreenTopPadding, bottom = DividendScreenBottomPadding),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Header(
-            titleColor = primaryTextColor,
-            subtitleColor = secondaryTextColor
-        )
+        DividendAppHeader()
 
         PortfolioValueCard(
             title = "Total Portfolio Value",
@@ -171,69 +169,6 @@ fun PortfolioDashboardScreen() {
     }
 }
 
-@Composable
-private fun Header(
-    titleColor: Color,
-    subtitleColor: Color
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy((-2).dp)) {
-            Text(
-                text = "Dividend Portfolio",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                color = titleColor
-            )
-
-            Text(
-                text = "Good morning, Investor",
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
-                color = subtitleColor
-            )
-        }
-
-        Surface(
-            modifier = Modifier.size(42.dp),
-            shape = CircleShape,
-            color = if (isSystemInDarkTheme()) DarkSurfaceSecondary else LightSurfaceSecondary
-        ) {
-            Canvas(modifier = Modifier.padding(11.dp)) {
-                val center = Offset(size.width / 2f, size.height / 2f)
-                drawCircle(
-                    color = subtitleColor,
-                    radius = size.minDimension * 0.18f,
-                    center = center,
-                    style = Stroke(width = 2.2f)
-                )
-
-                repeat(8) { index ->
-                    val angle = Math.toRadians((index * 45).toDouble())
-                    val startRadius = size.minDimension * 0.34f
-                    val endRadius = size.minDimension * 0.47f
-                    drawLine(
-                        color = subtitleColor,
-                        start = Offset(
-                            x = center.x + kotlin.math.cos(angle).toFloat() * startRadius,
-                            y = center.y + kotlin.math.sin(angle).toFloat() * startRadius
-                        ),
-                        end = Offset(
-                            x = center.x + kotlin.math.cos(angle).toFloat() * endRadius,
-                            y = center.y + kotlin.math.sin(angle).toFloat() * endRadius
-                        ),
-                        strokeWidth = 2.2f,
-                        cap = StrokeCap.Round
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Composable
 private fun PortfolioValueCard(
@@ -242,7 +177,7 @@ private fun PortfolioValueCard(
     subtitle: String,
     trend: String
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val titleColor = if (isDark) DarkTextSecondary else LightTextSecondary
     val valueColor = if (isDark) DarkTextPrimary else LightTextPrimary
     val subtitleColor = if (isDark) DarkTextMuted else LightTextMuted
@@ -294,7 +229,7 @@ private fun AnnualDividendCard(
     value: String,
     modifier: Modifier = Modifier
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val titleColor = if (isDark) DarkTextSecondary else LightTextSecondary
     val valueColor = if (isDark) DarkTextPrimary else LightTextPrimary
 
@@ -336,7 +271,7 @@ private fun MonthlyAverageCard(
     subtitle: String,
     modifier: Modifier = Modifier
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val titleColor = if (isDark) DarkTextSecondary else LightTextSecondary
     val subtitleColor = if (isDark) DarkTextMuted else LightTextMuted
 
@@ -405,7 +340,7 @@ private fun Sparkline(modifier: Modifier = Modifier) {
 
 @Composable
 private fun AllocationCard() {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
 
     val titleColor = if (isDark) DarkTextPrimary else LightTextPrimary
     val subtitleColor = if (isDark) DarkTextMuted else LightTextMuted

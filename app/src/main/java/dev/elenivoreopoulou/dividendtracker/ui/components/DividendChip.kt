@@ -1,6 +1,6 @@
 package dev.elenivoreopoulou.dividendtracker.ui.components
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,7 +23,7 @@ fun TrendChip(
     leadingSymbol: String? = "↗",
     contentPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val displayText = leadingSymbol?.let { "$it $text" } ?: text
 
     Surface(
@@ -46,7 +46,7 @@ fun YieldChip(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
 
     Surface(
         modifier = modifier,

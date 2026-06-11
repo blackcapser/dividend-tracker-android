@@ -1,6 +1,6 @@
 package dev.elenivoreopoulou.dividendtracker.ui.components
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,11 +14,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkSurface
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextPrimary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextSecondary
+import dev.elenivoreopoulou.dividendtracker.ui.theme.DividendTrackerTheme
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightSurface
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextPrimary
@@ -35,7 +37,7 @@ fun SummaryCard(
     trend: String? = null
 ) {
 
-    val isDarkTheme = isSystemInDarkTheme()
+    val isDarkTheme = isDividendInDarkTheme()
 
     val cardColor =
         if (isDarkTheme) DarkSurface else LightSurface
@@ -113,5 +115,33 @@ fun SummaryCard(
                 }
             }
         }
+    }
+}
+
+@Preview(name = "Summary Card Light", showBackground = true)
+@Composable
+private fun SummaryCardLightPreview() {
+    DividendTrackerTheme(darkTheme = false) {
+        SummaryCard(
+            title = "Total Portfolio Value",
+            value = "€132,920.5",
+            subtitle = "4 holdings",
+            trend = "↗ +4.6%",
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Preview(name = "Summary Card Dark", showBackground = true)
+@Composable
+private fun SummaryCardDarkPreview() {
+    DividendTrackerTheme(darkTheme = true) {
+        SummaryCard(
+            title = "Total Portfolio Value",
+            value = "€132,920.5",
+            subtitle = "4 holdings",
+            trend = "↗ +4.6%",
+            modifier = Modifier.padding(16.dp)
+        )
     }
 }

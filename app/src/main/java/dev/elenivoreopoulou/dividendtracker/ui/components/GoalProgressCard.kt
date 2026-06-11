@@ -1,7 +1,7 @@
 package dev.elenivoreopoulou.dividendtracker.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
+import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,7 +37,7 @@ fun GoalProgressCard(
     progress: Float,
     modifier: Modifier = Modifier
 ) {
-    val isDark = isSystemInDarkTheme()
+    val isDark = isDividendInDarkTheme()
     val clampedProgress = progress.coerceIn(0f, 1f)
     val titleColor = if (isDark) DarkTextPrimary else LightTextPrimary
     val secondaryColor = if (isDark) DarkTextSecondary else LightTextSecondary
