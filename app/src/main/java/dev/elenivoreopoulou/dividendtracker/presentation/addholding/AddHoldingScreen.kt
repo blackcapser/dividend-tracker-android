@@ -16,15 +16,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendPrimaryButton
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendAppHeader
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendBackTitleRow
@@ -42,13 +41,34 @@ import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextSecondary
 
 @Composable
 fun AddHoldingScreen(
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    viewModel: AddHoldingViewModel = viewModel()
 ) {
-    var companyName by rememberSaveable { mutableStateOf("") }
-    var ticker by rememberSaveable { mutableStateOf("") }
-    var shares by rememberSaveable { mutableStateOf("") }
-    var averagePrice by rememberSaveable { mutableStateOf("") }
-    var dividendPerShare by rememberSaveable { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsState()
+
+    AddHoldingScreen(
+        uiState = uiState,
+        onBackClick = onBackClick,
+        onCompanyNameChange = viewModel::onCompanyNameChange,
+        onTickerChange = viewModel::onTickerChange,
+        onSharesChange = viewModel::onSharesChange,
+        onAveragePriceChange = viewModel::onAveragePriceChange,
+        onDividendPerShareChange = viewModel::onDividendPerShareChange,
+        onSaveHoldingClick = viewModel::onSaveHoldingClick
+    )
+}
+
+@Composable
+private fun AddHoldingScreen(
+    uiState: AddHoldingUiState,
+    onBackClick: () -> Unit,
+    onCompanyNameChange: (String) -> Unit,
+    onTickerChange: (String) -> Unit,
+    onSharesChange: (String) -> Unit,
+    onAveragePriceChange: (String) -> Unit,
+    onDividendPerShareChange: (String) -> Unit,
+    onSaveHoldingClick: () -> Unit
+) {
     val isDark = isDividendInDarkTheme()
     val backgroundColor = if (isDark) DarkBackground else LightBackground
     val secondaryTextColor = if (isDark) DarkTextSecondary else LightTextSecondary
@@ -76,40 +96,40 @@ fun AddHoldingScreen(
         ) {
             LabeledTextField(
                 label = "Company name",
-                value = companyName,
-                onValueChange = { companyName = it },
+                value = uiState.companyName,
+                onValueChange = onCompanyNameChange,
                 placeholder = "Enter company name",
                 labelColor = secondaryTextColor
             )
 
             LabeledTextField(
                 label = "Ticker",
-                value = ticker,
-                onValueChange = { ticker = it.uppercase().take(MaxTickerLength) },
+                value = uiState.ticker,
+                onValueChange = onTickerChange,
                 placeholder = "e.g. AAPL",
                 labelColor = secondaryTextColor
             )
 
             LabeledTextField(
                 label = "Shares",
-                value = shares,
-                onValueChange = { shares = it.sanitizeDecimalInput() },
+                value = uiState.shares,
+                onValueChange = onSharesChange,
                 placeholder = "Number of shares",
                 labelColor = secondaryTextColor
             )
 
             LabeledTextField(
                 label = "Average buy price",
-                value = averagePrice,
-                onValueChange = { averagePrice = it.sanitizeDecimalInput() },
+                value = uiState.averagePrice,
+                onValueChange = onAveragePriceChange,
                 placeholder = "€0.00",
                 labelColor = secondaryTextColor
             )
 
             LabeledTextField(
                 label = "Annual dividend per share",
-                value = dividendPerShare,
-                onValueChange = { dividendPerShare = it.sanitizeDecimalInput() },
+                value = uiState.dividendPerShare,
+                onValueChange = onDividendPerShareChange,
                 placeholder = "€0.00",
                 labelColor = secondaryTextColor
             )
@@ -117,9 +137,7 @@ fun AddHoldingScreen(
 
         DividendPrimaryButton(
             text = "Save Holding",
-            onClick = {
-                // Repository save will be connected when persistence is introduced.
-            },
+            onClick = onSaveHoldingClick,
             modifier = Modifier.padding(top = 38.dp)
         )
     }
@@ -180,25 +198,6 @@ private fun OutlinedDividendTextField(
     }
 }
 
-private fun String.sanitizeDecimalInput(): String {
-    var hasSeparator = false
-
-    return buildString {
-        this@sanitizeDecimalInput.forEach { character ->
-            when {
-                character.isDigit() -> append(character)
-                (character == '.' || character == ',') && !hasSeparator -> {
-                    append('.')
-                    hasSeparator = true
-                }
-            }
-        }
-    }
-}
-
-
-private const val MaxTickerLength = 12
-
 @Preview(
     name = "Add Holding Light",
     showBackground = true
@@ -206,7 +205,16 @@ private const val MaxTickerLength = 12
 @Composable
 private fun AddHoldingScreenLightPreview() {
     DividendTrackerTheme(darkTheme = false) {
-        AddHoldingScreen()
+        AddHoldingScreen(
+            uiState = previewAddHoldingUiState,
+            onBackClick = {},
+            onCompanyNameChange = {},
+            onTickerChange = {},
+            onSharesChange = {},
+            onAveragePriceChange = {},
+            onDividendPerShareChange = {},
+            onSaveHoldingClick = {}
+        )
     }
 }
 
@@ -217,7 +225,24 @@ private fun AddHoldingScreenLightPreview() {
 @Composable
 private fun AddHoldingScreenDarkPreview() {
     DividendTrackerTheme(darkTheme = true) {
-        AddHoldingScreen()
+        AddHoldingScreen(
+            uiState = previewAddHoldingUiState,
+            onBackClick = {},
+            onCompanyNameChange = {},
+            onTickerChange = {},
+            onSharesChange = {},
+            onAveragePriceChange = {},
+            onDividendPerShareChange = {},
+            onSaveHoldingClick = {}
+        )
     }
 }
+
+private val previewAddHoldingUiState = AddHoldingUiState(
+    companyName = "Apple Inc.",
+    ticker = "AAPL",
+    shares = "12",
+    averagePrice = "185.50",
+    dividendPerShare = "0.96"
+)
 

@@ -25,6 +25,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,7 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.elenivoreopoulou.dividendtracker.data.model.FakePortfolioData
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendAppHeader
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendCard
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendSecondaryButton
@@ -59,17 +61,18 @@ import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.PrimaryBlue
 import dev.elenivoreopoulou.dividendtracker.ui.theme.SuccessGreen
 import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
-import java.text.DecimalFormat
 
 @Composable
-fun PassiveIncomeGoalScreen() {
-    val annualDividends = FakePortfolioData.holdings.sumOf { it.annualDividendIncome }
-    val monthlyIncome = annualDividends / 12
-    val monthlyGoal = 5000.0
-    val progress = (monthlyIncome / monthlyGoal).toFloat().coerceIn(0f, 1f)
-    val remainingMonthlyIncome = (monthlyGoal - monthlyIncome).coerceAtLeast(0.0)
-    val currencyFormatter = DecimalFormat("#,##0.##")
-    val percentFormatter = DecimalFormat("0.#")
+fun PassiveIncomeGoalScreen(
+    viewModel: PassiveIncomeGoalViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    PassiveIncomeGoalScreen(uiState = uiState)
+}
+
+@Composable
+private fun PassiveIncomeGoalScreen(uiState: PassiveIncomeGoalUiState) {
     val isDark = isDividendInDarkTheme()
     val backgroundColor = if (isDark) DarkBackground else LightBackground
     val primaryTextColor = if (isDark) DarkTextPrimary else LightTextPrimary
@@ -93,11 +96,11 @@ fun PassiveIncomeGoalScreen() {
         )
 
         MonthlyGoalCard(
-            targetMonthlyIncome = "€${currencyFormatter.format(monthlyGoal)}",
-            currentMonthlyIncome = "€${currencyFormatter.format(monthlyIncome)}",
-            progressPercent = "${percentFormatter.format(progress * 100)}%",
-            remainingMonthlyIncome = "€${currencyFormatter.format(remainingMonthlyIncome)}",
-            progress = progress
+            targetMonthlyIncome = uiState.targetMonthlyIncome,
+            currentMonthlyIncome = uiState.currentMonthlyIncome,
+            progressPercent = uiState.progressPercent,
+            remainingMonthlyIncome = uiState.remainingMonthlyIncome,
+            progress = uiState.progress
         )
 
         Text(
@@ -117,7 +120,7 @@ fun PassiveIncomeGoalScreen() {
             ProjectionCard(
                 icon = Icons.Outlined.Schedule,
                 label = "Est. Time to Goal",
-                value = "4.2 Years",
+                value = uiState.estimatedTimeToGoal,
                 iconColor = PrimaryBlue,
                 modifier = Modifier.weight(1f)
             )
@@ -125,13 +128,14 @@ fun PassiveIncomeGoalScreen() {
             ProjectionCard(
                 icon = Icons.AutoMirrored.Outlined.TrendingUp,
                 label = "Required Growth",
-                value = "12% / yr",
+                value = uiState.requiredGrowth,
                 iconColor = SuccessGreen,
                 modifier = Modifier.weight(1f)
             )
         }
 
         AccelerateProgressCard(
+            suggestion = uiState.accelerationSuggestion,
             titleColor = primaryTextColor,
             mutedTextColor = mutedTextColor
         )
@@ -294,6 +298,7 @@ private fun ProjectionCard(
 
 @Composable
 private fun AccelerateProgressCard(
+    suggestion: String,
     titleColor: Color,
     mutedTextColor: Color
 ) {
@@ -326,7 +331,7 @@ private fun AccelerateProgressCard(
                 )
 
                 Text(
-                    text = "Invest €500/month more\nto achieve your goal 1.5 years sooner",
+                    text = suggestion,
                     style = MaterialTheme.typography.bodySmall.copy(lineHeight = 24.sp),
                     color = mutedTextColor
                 )
@@ -375,7 +380,7 @@ private fun IconBadge(
 @Composable
 private fun PassiveIncomeGoalScreenLightPreview() {
     DividendTrackerTheme(darkTheme = false) {
-        PassiveIncomeGoalScreen()
+        PassiveIncomeGoalScreen(uiState = previewGoalUiState)
     }
 }
 
@@ -386,6 +391,17 @@ private fun PassiveIncomeGoalScreenLightPreview() {
 @Composable
 private fun PassiveIncomeGoalScreenDarkPreview() {
     DividendTrackerTheme(darkTheme = true) {
-        PassiveIncomeGoalScreen()
+        PassiveIncomeGoalScreen(uiState = previewGoalUiState)
     }
 }
+
+private val previewGoalUiState = PassiveIncomeGoalUiState(
+    targetMonthlyIncome = "€5,000",
+    currentMonthlyIncome = "€1,131.43",
+    progressPercent = "22.6%",
+    remainingMonthlyIncome = "€3,868.57",
+    progress = 0.23f,
+    estimatedTimeToGoal = "4.2 Years",
+    requiredGrowth = "12% / yr",
+    accelerationSuggestion = "Invest €500/month more\nto achieve your goal 1.5 years sooner"
+)

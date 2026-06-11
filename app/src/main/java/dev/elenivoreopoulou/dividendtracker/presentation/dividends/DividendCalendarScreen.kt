@@ -29,12 +29,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendAppHeader
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendCard
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenBottomPadding
@@ -56,13 +59,18 @@ import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextPrimary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.PrimaryBlue
 import dev.elenivoreopoulou.dividendtracker.ui.theme.SuccessGreen
-import java.text.DecimalFormat
 
 @Composable
-fun DividendCalendarScreen() {
-    val months = calendarMonths
-    val annualExpectedIncome = months.sumOf { month -> month.payouts.sumOf { it.amount } }
-    val currencyFormatter = DecimalFormat("#,##0")
+fun DividendCalendarScreen(
+    viewModel: DividendCalendarViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    DividendCalendarScreen(uiState = uiState)
+}
+
+@Composable
+private fun DividendCalendarScreen(uiState: DividendCalendarUiState) {
     val isDark = isDividendInDarkTheme()
     val backgroundColor = if (isDark) DarkBackground else LightBackground
     val primaryTextColor = if (isDark) DarkTextPrimary else LightTextPrimary
@@ -84,7 +92,7 @@ fun DividendCalendarScreen() {
                 horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Text(
-                    text = "2026",
+                    text = uiState.selectedYear,
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                     color = primaryTextColor
                 )
@@ -99,12 +107,11 @@ fun DividendCalendarScreen() {
         }
 
         ExpectedIncomeCard(
-            amount = "€${currencyFormatter.format(annualExpectedIncome)}"
+            amount = uiState.expectedIncome
         )
 
         CalendarTimeline(
-            months = months,
-            currencyFormatter = currencyFormatter
+            months = uiState.months
         )
     }
 }
@@ -157,8 +164,7 @@ private fun ExpectedIncomeCard(amount: String) {
 
 @Composable
 private fun CalendarTimeline(
-    months: List<CalendarMonth>,
-    currencyFormatter: DecimalFormat
+    months: List<CalendarMonthUiState>
 ) {
     val isDark = isDividendInDarkTheme()
     val lineColor = if (isDark) DarkOutline else LightTextMuted.copy(alpha = 0.68f)
@@ -204,7 +210,6 @@ private fun CalendarTimeline(
             months.forEach { month ->
                 MonthPayoutCard(
                     month = month,
-                    currencyFormatter = currencyFormatter,
                     modifier = Modifier.height(month.rowHeight)
                 )
             }
@@ -231,8 +236,7 @@ private fun TimelineMarker(
 
 @Composable
 private fun MonthPayoutCard(
-    month: CalendarMonth,
-    currencyFormatter: DecimalFormat,
+    month: CalendarMonthUiState,
     modifier: Modifier = Modifier
 ) {
     val isDark = isDividendInDarkTheme()
@@ -242,7 +246,6 @@ private fun MonthPayoutCard(
     val primaryTextColor = if (isDark) DarkTextPrimary else LightTextPrimary
     val secondaryTextColor = if (isDark) DarkTextMuted else LightTextMuted
     val dividerColor = if (isDark) DarkOutline else LightOutline
-    val amount = month.payouts.sumOf { it.amount }
 
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -266,7 +269,7 @@ private fun MonthPayoutCard(
                 )
 
                 Text(
-                    text = "€${currencyFormatter.format(amount)}",
+                    text = month.totalPayoutAmount,
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                     color = if (isActive) SuccessGreen else secondaryTextColor,
                     textAlign = TextAlign.End
@@ -289,7 +292,7 @@ private fun MonthPayoutCard(
                         )
 
                         Text(
-                            text = "€${currencyFormatter.format(payout.amount)}",
+                            text = payout.formattedAmount,
                             style = MaterialTheme.typography.bodyMedium,
                             color = primaryTextColor,
                             textAlign = TextAlign.End
@@ -301,44 +304,12 @@ private fun MonthPayoutCard(
     }
 }
 
-private data class CalendarMonth(
-    val name: String,
-    val payouts: List<CalendarPayout> = emptyList()
-) {
-    val hasPayouts: Boolean = payouts.isNotEmpty()
-    val rowHeight: androidx.compose.ui.unit.Dp
-        get() = when (payouts.size) {
-            0 -> 58.dp
-            1 -> 108.dp
-            else -> 138.dp
-        }
-}
-
-private data class CalendarPayout(
-    val ticker: String,
-    val amount: Int
-)
-
-private val calendarMonths = listOf(
-    CalendarMonth(name = "Jan"),
-    CalendarMonth(name = "Feb"),
-    CalendarMonth(name = "Mar", payouts = listOf(CalendarPayout("BELA.AT", 120))),
-    CalendarMonth(name = "Apr"),
-    CalendarMonth(
-        name = "May",
-        payouts = listOf(
-            CalendarPayout("OPAP.AT", 450),
-            CalendarPayout("EEE.AT", 6256)
-        )
-    ),
-    CalendarMonth(name = "Jun", payouts = listOf(CalendarPayout("ALPHA.AT", 45))),
-    CalendarMonth(name = "Jul"),
-    CalendarMonth(name = "Aug"),
-    CalendarMonth(name = "Sep", payouts = listOf(CalendarPayout("OPAP.AT", 225))),
-    CalendarMonth(name = "Oct"),
-    CalendarMonth(name = "Nov"),
-    CalendarMonth(name = "Dec")
-)
+private val CalendarMonthUiState.rowHeight: androidx.compose.ui.unit.Dp
+    get() = when (payouts.size) {
+        0 -> 58.dp
+        1 -> 108.dp
+        else -> 138.dp
+    }
 
 @Preview(
     name = "Calendar Light",
@@ -347,7 +318,7 @@ private val calendarMonths = listOf(
 @Composable
 private fun DividendCalendarScreenLightPreview() {
     DividendTrackerTheme(darkTheme = false) {
-        DividendCalendarScreen()
+        DividendCalendarScreen(uiState = previewCalendarUiState)
     }
 }
 
@@ -358,6 +329,29 @@ private fun DividendCalendarScreenLightPreview() {
 @Composable
 private fun DividendCalendarScreenDarkPreview() {
     DividendTrackerTheme(darkTheme = true) {
-        DividendCalendarScreen()
+        DividendCalendarScreen(uiState = previewCalendarUiState)
     }
 }
+
+private val previewCalendarUiState = DividendCalendarUiState.from(
+    months = listOf(
+        CalendarMonthUiState(name = "Jan"),
+        CalendarMonthUiState(name = "Feb"),
+        CalendarMonthUiState(name = "Mar", payouts = listOf(CalendarPayoutUiState("BELA.AT", 120))),
+        CalendarMonthUiState(name = "Apr"),
+        CalendarMonthUiState(
+            name = "May",
+            payouts = listOf(
+                CalendarPayoutUiState("OPAP.AT", 450),
+                CalendarPayoutUiState("EEE.AT", 6256)
+            )
+        ),
+        CalendarMonthUiState(name = "Jun", payouts = listOf(CalendarPayoutUiState("ALPHA.AT", 45))),
+        CalendarMonthUiState(name = "Jul"),
+        CalendarMonthUiState(name = "Aug"),
+        CalendarMonthUiState(name = "Sep", payouts = listOf(CalendarPayoutUiState("OPAP.AT", 225))),
+        CalendarMonthUiState(name = "Oct"),
+        CalendarMonthUiState(name = "Nov"),
+        CalendarMonthUiState(name = "Dec")
+    )
+)

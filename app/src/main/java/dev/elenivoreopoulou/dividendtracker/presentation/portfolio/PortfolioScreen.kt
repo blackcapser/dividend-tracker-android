@@ -23,10 +23,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -35,7 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.elenivoreopoulou.dividendtracker.data.model.FakePortfolioData
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.elenivoreopoulou.dividendtracker.domain.model.Holding
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendAppHeader
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendCard
@@ -60,17 +58,24 @@ import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextPrimary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.PrimaryBlue
 import dev.elenivoreopoulou.dividendtracker.ui.theme.SuccessGreen
-import java.text.DecimalFormat
 
 @Composable
-fun PortfolioScreen() {
-    val holdings = FakePortfolioData.holdings.sortedBy { it.ticker }
-    var searchQuery by rememberSaveable { mutableStateOf("") }
-    val filteredHoldings = holdings.filter { holding ->
-        holding.ticker.contains(searchQuery, ignoreCase = true) ||
-            holding.companyName.contains(searchQuery, ignoreCase = true)
-    }
-    val uiState = PortfolioUiState.from(holdings)
+fun PortfolioScreen(
+    viewModel: PortfolioViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    PortfolioScreen(
+        uiState = uiState,
+        onSearchQueryChange = viewModel::onSearchQueryChange
+    )
+}
+
+@Composable
+private fun PortfolioScreen(
+    uiState: PortfolioScreenUiState,
+    onSearchQueryChange: (String) -> Unit
+) {
     val isDark = isDividendInDarkTheme()
     val backgroundColor = if (isDark) DarkBackground else LightBackground
     val primaryTextColor = if (isDark) DarkTextPrimary else LightTextPrimary
@@ -101,27 +106,27 @@ fun PortfolioScreen() {
         }
 
         item {
-            PortfolioSummaryCard(uiState = uiState)
+            PortfolioSummaryCard(uiState = uiState.summary)
         }
 
         item {
             SearchHoldingsField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it }
+                value = uiState.searchQuery,
+                onValueChange = onSearchQueryChange
             )
         }
 
-        if (filteredHoldings.isEmpty()) {
+        if (uiState.filteredHoldings.isEmpty()) {
             item {
                 EmptyHoldingsMessage(
-                    query = searchQuery,
+                    query = uiState.searchQuery,
                     titleColor = primaryTextColor,
                     subtitleColor = mutedTextColor
                 )
             }
         } else {
             items(
-                items = filteredHoldings,
+                items = uiState.filteredHoldings,
                 key = { holding -> holding.id }
             ) { holding ->
                 HoldingCard(holding = holding)
@@ -136,7 +141,7 @@ fun PortfolioScreen() {
 
 
 @Composable
-private fun PortfolioSummaryCard(uiState: PortfolioUiState) {
+private fun PortfolioSummaryCard(uiState: PortfolioSummaryUiState) {
     val isDark = isDividendInDarkTheme()
 
     DividendCard(
@@ -279,35 +284,6 @@ private fun EmptyHoldingsMessage(
     }
 }
 
-private data class PortfolioUiState(
-    val investedAmount: String,
-    val currentValue: String,
-    val annualDividendIncome: String,
-    val yieldOnCost: String
-) {
-    companion object {
-        fun from(holdings: List<Holding>): PortfolioUiState {
-            val investedAmount = holdings.sumOf { it.investedAmount }
-            val currentValue = holdings.sumOf { it.currentValue }
-            val annualDividendIncome = holdings.sumOf { it.annualDividendIncome }
-            val yieldOnCost = if (investedAmount > 0) {
-                annualDividendIncome / investedAmount * 100
-            } else {
-                0.0
-            }
-            val currencyFormatter = DecimalFormat("#,##0.0#")
-            val percentFormatter = DecimalFormat("0.##")
-
-            return PortfolioUiState(
-                investedAmount = "€${currencyFormatter.format(investedAmount)}",
-                currentValue = "€${currencyFormatter.format(currentValue)}",
-                annualDividendIncome = "€${currencyFormatter.format(annualDividendIncome)}",
-                yieldOnCost = "${percentFormatter.format(yieldOnCost)}%"
-            )
-        }
-    }
-}
-
 @Preview(
     name = "Portfolio Light",
     showBackground = true
@@ -315,7 +291,10 @@ private data class PortfolioUiState(
 @Composable
 private fun PortfolioScreenLightPreview() {
     DividendTrackerTheme(darkTheme = false) {
-        PortfolioScreen()
+        PortfolioScreen(
+            uiState = previewPortfolioUiState,
+            onSearchQueryChange = {}
+        )
     }
 }
 
@@ -326,7 +305,42 @@ private fun PortfolioScreenLightPreview() {
 @Composable
 private fun PortfolioScreenDarkPreview() {
     DividendTrackerTheme(darkTheme = true) {
-        PortfolioScreen()
+        PortfolioScreen(
+            uiState = previewPortfolioUiState,
+            onSearchQueryChange = {}
+        )
     }
 }
+
+private val previewPortfolioUiState = PortfolioScreenUiState.from(
+    holdings = listOf(
+        Holding(
+            id = 1,
+            companyName = "OPAP",
+            ticker = "OPAP.AT",
+            shares = 7250.0,
+            averagePrice = 17.52,
+            currentPrice = 17.60,
+            annualDividendPerShare = 1.85
+        ),
+        Holding(
+            id = 2,
+            companyName = "Alpha Services and Holdings",
+            ticker = "ALPHA.AT",
+            shares = 1000.0,
+            averagePrice = 1.65,
+            currentPrice = 1.72,
+            annualDividendPerShare = 0.0298
+        ),
+        Holding(
+            id = 3,
+            companyName = "Jumbo",
+            ticker = "BELA.AT",
+            shares = 100.0,
+            averagePrice = 25.00,
+            currentPrice = 27.40,
+            annualDividendPerShare = 1.20
+        )
+    )
+)
 
