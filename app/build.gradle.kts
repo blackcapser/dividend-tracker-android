@@ -5,11 +5,7 @@ plugins {
 
 android {
     namespace = "dev.elenivoreopoulou.dividendtracker"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "dev.elenivoreopoulou.dividendtracker"
@@ -19,6 +15,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    lint {
+        disable += "OldTargetApi"
+    }
+
+    packaging {
+        jniLibs {
+            keepDebugSymbols += "**/libandroidx.graphics.path.so"
+        }
     }
 
     buildTypes {
