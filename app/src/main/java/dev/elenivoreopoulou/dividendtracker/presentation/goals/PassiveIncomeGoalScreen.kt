@@ -1,7 +1,6 @@
 package dev.elenivoreopoulou.dividendtracker.presentation.goals
 
 import androidx.compose.foundation.background
-import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,10 +20,8 @@ import androidx.compose.material.icons.automirrored.outlined.TrendingUp
 import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.TrackChanges
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,23 +42,23 @@ import androidx.compose.ui.unit.sp
 import dev.elenivoreopoulou.dividendtracker.data.model.FakePortfolioData
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendAppHeader
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendCard
+import dev.elenivoreopoulou.dividendtracker.ui.components.DividendSecondaryButton
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenBottomPadding
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenHorizontalPadding
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenTitleRow
 import dev.elenivoreopoulou.dividendtracker.ui.components.DividendScreenTopPadding
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkBackground
-import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkOutline
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextPrimary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DarkTextSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.DividendTrackerTheme
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightBackground
-import dev.elenivoreopoulou.dividendtracker.ui.theme.LightOutline
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextMuted
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextPrimary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.LightTextSecondary
 import dev.elenivoreopoulou.dividendtracker.ui.theme.PrimaryBlue
 import dev.elenivoreopoulou.dividendtracker.ui.theme.SuccessGreen
+import dev.elenivoreopoulou.dividendtracker.ui.theme.isDividendInDarkTheme
 import java.text.DecimalFormat
 
 @Composable
@@ -334,7 +331,14 @@ private fun AccelerateProgressCard(
                     color = mutedTextColor
                 )
 
-                AdjustContributionsButton()
+                DividendSecondaryButton(
+                    text = "Adjust Contributions",
+                    onClick = {},
+                    fillMaxWidth = false,
+                    cornerRadius = 50.dp,
+                    contentPadding = PaddingValues(horizontal = 18.dp, vertical = 8.dp),
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
+                )
             }
         }
     }
@@ -363,25 +367,6 @@ private fun IconBadge(
     }
 }
 
-@Composable
-private fun AdjustContributionsButton() {
-    val isDark = isDividendInDarkTheme()
-    val contentColor = if (isDark) DarkTextPrimary else LightTextPrimary
-    val borderColor = if (isDark) DarkOutline else LightOutline
-
-    OutlinedButton(
-        onClick = {},
-        shape = RoundedCornerShape(50),
-        border = androidx.compose.foundation.BorderStroke(1.dp, borderColor),
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = contentColor),
-        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 8.dp)
-    ) {
-        Text(
-            text = "Adjust Contributions",
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
-        )
-    }
-}
 
 @Preview(
     name = "Goals Light",
