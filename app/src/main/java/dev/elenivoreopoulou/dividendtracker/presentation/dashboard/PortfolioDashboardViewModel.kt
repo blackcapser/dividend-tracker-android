@@ -59,9 +59,9 @@ data class UpcomingPayoutUiState(
     val amount: String
 )
 
-class PortfolioDashboardViewModel : ViewModel() {
-    private val repository: PortfolioRepository = FakePortfolioRepository
-
+class PortfolioDashboardViewModel(
+    repository: PortfolioRepository = FakePortfolioRepository
+) : ViewModel() {
     private val _uiState = MutableStateFlow(
         PortfolioDashboardUiState.from(repository.getHoldings())
     )
