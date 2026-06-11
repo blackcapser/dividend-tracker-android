@@ -84,10 +84,8 @@ fun PortfolioDashboardScreen() {
         DividendAppHeader()
 
         PortfolioValueCard(
-            title = "Total Portfolio Value",
             value = "€${currencyFormatter.format(portfolioValue)}",
-            subtitle = "${holdings.size} holdings",
-            trend = "+4.6%"
+            subtitle = "${holdings.size} holdings"
         )
 
         Row(
@@ -95,15 +93,12 @@ fun PortfolioDashboardScreen() {
             modifier = Modifier.fillMaxWidth()
         ) {
             AnnualDividendCard(
-                title = "Annual Dividends",
                 value = "€${currencyFormatter.format(annualDividends)}",
                 modifier = Modifier.weight(1f)
             )
 
             MonthlyAverageCard(
-                title = "Monthly Average",
                 value = "€${currencyFormatter.format(monthlyIncome)}",
-                subtitle = "Yield: 10.69%",
                 modifier = Modifier.weight(1f)
             )
         }
@@ -172,10 +167,8 @@ fun PortfolioDashboardScreen() {
 
 @Composable
 private fun PortfolioValueCard(
-    title: String,
     value: String,
-    subtitle: String,
-    trend: String
+    subtitle: String
 ) {
     val isDark = isDividendInDarkTheme()
     val titleColor = if (isDark) DarkTextSecondary else LightTextSecondary
@@ -192,7 +185,7 @@ private fun PortfolioValueCard(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
-                text = title,
+                text = "Total Portfolio Value",
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
                 color = titleColor
             )
@@ -211,7 +204,7 @@ private fun PortfolioValueCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                TrendChip(text = trend)
+                TrendChip(text = "+4.6%")
 
                 Text(
                     text = subtitle,
@@ -225,7 +218,6 @@ private fun PortfolioValueCard(
 
 @Composable
 private fun AnnualDividendCard(
-    title: String,
     value: String,
     modifier: Modifier = Modifier
 ) {
@@ -242,7 +234,7 @@ private fun AnnualDividendCard(
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Text(
-                text = title,
+                text = "Annual Dividends",
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
                 color = titleColor,
                 maxLines = 1,
@@ -266,9 +258,7 @@ private fun AnnualDividendCard(
 
 @Composable
 private fun MonthlyAverageCard(
-    title: String,
     value: String,
-    subtitle: String,
     modifier: Modifier = Modifier
 ) {
     val isDark = isDividendInDarkTheme()
@@ -285,7 +275,7 @@ private fun MonthlyAverageCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = title,
+                text = "Monthly Average",
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
                 color = titleColor,
                 maxLines = 1,
@@ -305,7 +295,7 @@ private fun MonthlyAverageCard(
             )
 
             Text(
-                text = subtitle,
+                text = "Yield: 10.69%",
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
                 color = subtitleColor
             )

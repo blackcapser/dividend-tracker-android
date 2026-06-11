@@ -12,9 +12,11 @@ val LocalDividendDarkTheme = staticCompositionLocalOf { false }
 val LocalDividendThemeToggle = staticCompositionLocalOf<() -> Unit> { {} }
 
 @Composable
+@Suppress("unused")
 fun isDividendInDarkTheme(): Boolean = LocalDividendDarkTheme.current
 
 @Composable
+@Suppress("unused")
 fun currentDividendThemeToggle(): () -> Unit = LocalDividendThemeToggle.current
 
 private val DarkColors = darkColorScheme(
