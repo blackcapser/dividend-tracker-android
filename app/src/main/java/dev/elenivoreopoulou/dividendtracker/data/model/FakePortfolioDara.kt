@@ -18,10 +18,10 @@ object FakePortfolioData {
             id = 2,
             companyName = "Alpha Services and Holdings",
             ticker = "ALPHA.AT",
-            shares = 1500.0,
+            shares = 1000.0,
             averagePrice = 1.65,
             currentPrice = 1.72,
-            annualDividendPerShare = 0.03
+            annualDividendPerShare = 0.0298
         ),
         Holding(
             id = 3,
@@ -31,6 +31,15 @@ object FakePortfolioData {
             averagePrice = 25.00,
             currentPrice = 27.40,
             annualDividendPerShare = 1.20
+        ),
+        Holding(
+            id = 4,
+            companyName = "National Bank of Greece",
+            ticker = "ETE.AT",
+            shares = 500.0,
+            averagePrice = 1.62,
+            currentPrice = 1.721,
+            annualDividendPerShare = 0.0298
         )
     )
 }
