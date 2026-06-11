@@ -43,9 +43,9 @@ data class PassiveIncomeGoalUiState(
     }
 }
 
-class PassiveIncomeGoalViewModel : ViewModel() {
-    private val repository: PortfolioRepository = FakePortfolioRepository
-
+class PassiveIncomeGoalViewModel(
+    repository: PortfolioRepository = FakePortfolioRepository
+) : ViewModel() {
     private val _uiState = MutableStateFlow(
         PassiveIncomeGoalUiState.from(repository.getHoldings())
     )

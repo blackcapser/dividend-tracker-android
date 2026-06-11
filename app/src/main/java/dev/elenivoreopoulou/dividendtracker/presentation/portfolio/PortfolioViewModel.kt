@@ -63,8 +63,9 @@ data class PortfolioSummaryUiState(
     }
 }
 
-class PortfolioViewModel : ViewModel() {
-    private val repository: PortfolioRepository = FakePortfolioRepository
+class PortfolioViewModel(
+    repository: PortfolioRepository = FakePortfolioRepository
+) : ViewModel() {
     private val holdings = repository.getHoldings()
 
     private val _uiState = MutableStateFlow(PortfolioScreenUiState.from(holdings))
